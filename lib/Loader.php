@@ -177,7 +177,7 @@ final class Loader
         }
         
         // 待合并预加载的类
-        $libClass = [
+        $libClasses = [
             // app
             '\\wf\\app\\ApplicationAbstrct',
             '\\wf\\app\\Benchmark',
@@ -230,7 +230,11 @@ final class Loader
         
         $liteContent = "<?php\n";
         
-        foreach ($libClass as $class) {
+        foreach ($libClasses as $class) {
+            if (class_exists($class)) {
+                continue;
+            }
+            
             $file = static::getClassFile($class);
             if (!$file) {
                 continue;

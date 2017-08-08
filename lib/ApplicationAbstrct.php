@@ -54,14 +54,13 @@ abstract class ApplicationAbstrct
     /**
      * 取得前端控制器实例，只允许实例化一次
      *
-     * @param string $cfgDir = ''
      * @return \wf\app\Application
      */
-    public static function app($cfgDir = '')
+    public static function app()
     {
         if (!self::$instance){
             \wf\app\Benchmark::start();
-            self::$instance = new static($cfgDir);
+            self::$instance = new static();
             self::$instance->initRuntime();
             \wf\app\Benchmark::mark('appInstanceAft');
         }
@@ -72,7 +71,7 @@ abstract class ApplicationAbstrct
     /**
      * 限制只能使用单例模式创建实例，通过 Application::app()创建/获取实例
      */
-    private function __construct($cfgDir = '')
+    private function __construct()
     {        
         // 自定义异常处理
         set_exception_handler('exceptionHandler');

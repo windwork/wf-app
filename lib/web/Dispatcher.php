@@ -267,6 +267,15 @@ class Dispatcher {
             }
         }
         
+        // 静态文件路径
+        if (empty($urlCfg['staticSiteUrl'])) {
+            $urlCfg['staticSiteUrl'] = $urlCfg['siteUrl'];
+        }
+        
+        if (empty($urlCfg['topDomain'])) {
+            $urlCfg['topDomain'] = preg_replace("/^http[s]?:\\/\\/(.+?)/i", "\\1", $urlCfg['hostInfo']);
+        }
+        
         // URL 保存URL配置到全局配置中
         $config->set('url', $urlCfg);
         

@@ -154,9 +154,10 @@ abstract class Controller
         ->assign('mod', $this->mod)
         ->assign('ctl', $this->ctl)
         ->assign('act', $this->act)
-
+        
         // URL相关参数
-        ->assign('staticPath', cfg('url.staticPath'))
+        ->assign('themePath',  cfg('url.staticSiteUrl') . 'theme/' . cfg('theme') . '/')
+        ->assign('staticPath', cfg('url.staticSiteUrl') . 'static/')
         ->assign('basePath',   cfg('url.basePath'))
         ->assign('baseUrl',    cfg('url.baseUrl'))
         ->assign('siteUrl',    cfg('url.siteUrl'));
@@ -283,12 +284,12 @@ abstract class Controller
     }
     
     /**
-     * 当前请求是否是POST方式
+     * 是否是提交数据（因js跨域情况下前端js可能把post换成get，因此不用isPost）
      * @return boolean
      */
-    protected function isPost()
+    protected function isSubmit()
     {
-        return $this->request->isPost();
+        return (bool)$this->getInput('submit');
     }
     
     /**
