@@ -75,17 +75,18 @@ abstract class Controller
      * 控制器构造函数
      * 设置app、request、response、mod、ctl、act、view属性
      */
-    public function __construct(\wf\app\web\Dispatcher $dispatcher)
-    {
+    public function __construct()
+    {        
+        // 绑定应用实例
+        $this->app = $dispatcher->getApp();
+        
+        $dispatcher = $this->app->getDispatcher();
         $router = $dispatcher->getRouter();
         
         // 模块/控制器/操作
         $this->mod = $router->mod;
         $this->ctl = $router->ctl;
         $this->act = $router->act;
-        
-        // 绑定应用实例
-        $this->app = $dispatcher->getApp();
         
         // 控制器中的对象
         $this->dispatcher = $dispatcher;
