@@ -78,7 +78,7 @@ abstract class Controller
     public function __construct()
     {        
         // 绑定应用实例
-        $this->app = $dispatcher->getApp();
+        $this->app = app();
         
         $dispatcher = $this->app->getDispatcher();
         $router = $dispatcher->getRouter();
