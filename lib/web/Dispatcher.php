@@ -283,7 +283,7 @@ class Dispatcher {
         $this->response->baseUrl = $urlCfg['basePath'] . $urlCfg['baseUrl'];
         
         // （每次dispatch都需要）初始化路由设置，生成URL依赖于配置中的hostInfo、basePath
-        $routeClass = (empty($urlCfg['class']) ? '\\wf\\route\\strategy\\Simple': $urlCfg['class']);
+        $routeClass = (empty($urlCfg['class']) ? '\\wf\\route\\adapter\\Simple': $urlCfg['class']);
         $this->setRouter(new $routeClass($urlCfg));
         
         unset($urlCfg);

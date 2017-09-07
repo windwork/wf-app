@@ -199,42 +199,38 @@ final class Loader
             '\\wf\\app\\web\\Request',
             '\\wf\\app\\web\\Response',
             '\\wf\\route\\RouteAbstract',
-            '\\wf\\route\\strategy\\Simple',
+            '\\wf\\route\\adapter\\Simple',
             '\\wf\\model\\Model',
             '\\wf\\model\\Error',
             '\\wf\\model\\ActiveRecord',
             '\\wf\\template\\EngineInterface',
-            '\\wf\\template\\strategy\\Wind',
+            '\\wf\\template\\adapter\\Wind',
             
             // cache
             '\\wf\\cache\\CacheInterface',
             '\\wf\\cache\\CacheAbstract',
-            '\\wf\\cache\\strategy\\File',
-            '\\wf\\cache\\strategy\\Memcache',
-            '\\wf\\cache\\strategy\\Memcached',
-            '\\wf\\cache\\strategy\\Redis',
+            '\\wf\\cache\\adapter\\File',
+            '\\wf\\cache\\adapter\\Memcache',
+            '\\wf\\cache\\adapter\\Memcached',
+            '\\wf\\cache\\adapter\\Redis',
             
             // db
             '\\wf\\db\\DBInterface',
             '\\wf\\db\\DBAbstract',
             '\\wf\\db\\Finder',
             '\\wf\\db\\QueryBuilder',
-            '\\wf\\db\\strategy\\MySQLi',
-            '\\wf\\db\\strategy\\PDOMySQL',
+            '\\wf\\db\\adapter\\MySQLi',
+            '\\wf\\db\\adapter\\PDOMySQL',
             
             // logger
             '\\wf\\logger\\LoggerInterface',
             '\\wf\\logger\\LoggerAbstract',
-            '\\wf\\logger\\strategy\\File',
+            '\\wf\\logger\\adapter\\File',
         ];
         
         $liteContent = "<?php\n";
         
         foreach ($libClasses as $class) {
-            if (class_exists($class)) {
-                continue;
-            }
-            
             $file = static::getClassFile($class);
             if (!$file) {
                 continue;
