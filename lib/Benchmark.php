@@ -47,7 +47,8 @@ final class Benchmark
         }
         
         // 如果已定义__WF_START_TIME并且格式是microtime(1)的，就使用作为初始时间，否则使用当前microtime
-        $startTime = (defined(__WF_START_TIME) && preg_match("/^1\\d{9}\\.\\d+/", __WF_START_TIME, $m)) ? __WF_START_TIME : microtime(true);
+        $startTime = (defined('__WF_START_TIME') && preg_match("/^1\\d{9}\\.\\d+/", __WF_START_TIME, $m))
+            ? __WF_START_TIME : microtime(true);
         
         return static::$marks['@__start'] = [
             'mem'  => number_format(memory_get_usage()/(1024*1024), 3),// （M）精确到k

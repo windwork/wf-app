@@ -107,13 +107,13 @@ final class ServiceLocator
         // 实例创建的参数
         $args = $this->params[$id];
         $definition = $this->definitions[$id];
-        
+
         if ($definition instanceof \Closure || (is_string($definition) && function_exists($definition))) {
             // 执行闭包/函数
-            $object = $definition(...$args);
+            $object = $definition(@$args[0], @$args[1], @$args[2], @$args[3], @$args[4], @$args[5], @$args[6], @$args[7], @$args[8]);
         } elseif (is_string($definition)) {
             // 创建类实例
-            $object = new $definition(...$args);
+            $object = new $definition(@$args[0], @$args[1], @$args[2], @$args[3], @$args[4], @$args[5], @$args[6], @$args[7], @$args[8]);
         } else {
             throw new Exception('definition error: ' . $id);
         }

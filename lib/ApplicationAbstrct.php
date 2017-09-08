@@ -98,8 +98,8 @@ abstract class ApplicationAbstrct
         
         // 加载config后，初始化运行时 ini设置
         @ini_set('memory_limit',   '128M'); // 如需更大内存，可在控制器中覆盖设置
-        @ini_set('date.timezone',  cfg('timezone')); // 默认时区, 可在用户登录后重设时区
-        @ini_set('error_log',      cfg('log.dir') . '/php_error.log');
+        @ini_set('date.timezone',  $this->config->get('timezone')); // 默认时区, 可在用户登录后重设时区
+        @ini_set('error_log',      $this->config->get('log.dir') . '/php_error.log');
         @ini_set('log_errors',     1);
         
         if (defined('WF_DEBUG') && WF_DEBUG) {
@@ -113,7 +113,7 @@ abstract class ApplicationAbstrct
         }
                 
         // 设置自动加载类查找类文件的文件夹
-        \wf\app\Loader::addClassPath(cfg('classPath'));
+        \wf\app\Loader::addClassPath($this->config->get('classPath'));
 
         // 清除输出缓冲
         while (ob_get_level()) {
@@ -121,7 +121,7 @@ abstract class ApplicationAbstrct
         }
 
         // 启用压缩，服务器端支持压缩并且客户端支持解压缩则启用压缩
-        @ob_start(cfg('gzcompress') ? 'ob_gzhandler' : null);
+        @ob_start($this->config->get('gzcompress') ? 'ob_gzhandler' : null);
 
         // 响应头信息设置
         header('Content-Type: text/html;charset=UTF-8');
@@ -131,7 +131,7 @@ abstract class ApplicationAbstrct
         header('X-Powered-By: Windwork');
 
         // 初始化hook，加载hook配置
-        $this->hook = new \wf\app\Hook(cfg('hooks'));
+        $this->hook = new \wf\app\Hook($this->config->get('hooks'));
         // hook 1 Web运行环境初始化后的钩子
         $this->hook->call('appRuntimeAft');
     }
