@@ -23,7 +23,7 @@ final class Version
      * 当前Windwork版本号
      * @var string
      */
-    const VERSION = '0.7.0';
+    const VERSION = '0.7.5';
         
     /**
      * 所有组件在GitHub上最后发布的版本号

@@ -200,9 +200,9 @@ final class Loader
             '\\wf\\app\\web\\Response',
             '\\wf\\route\\RouteAbstract',
             '\\wf\\route\\adapter\\Simple',
+            '\\wf\\model\\Business',
             '\\wf\\model\\Model',
             '\\wf\\model\\Error',
-            '\\wf\\model\\ActiveRecord',
             '\\wf\\template\\EngineInterface',
             '\\wf\\template\\adapter\\Wind',
             
