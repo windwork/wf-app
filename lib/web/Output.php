@@ -75,7 +75,7 @@ class Output {
 
 		$req = dsp()->getRequest();
 
-		header('Content-Type: text/html; Charset=utf-8');
+		header('Content-Type: text/html; charset=UTF-8');
 		
 		if (false != ($ifCbUrl = $req->getRequest('if_cb_url'))) {
 		    $ifCbUrl = paramDecode($ifCbUrl);

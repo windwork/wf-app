@@ -214,7 +214,7 @@ abstract class Controller
      * 业务控制层消息，只在控制器中设置值，可在视图中显示。
      * 可跨在一个请求中跨action传递
      * 
-     * @return \wf\app\web\Message
+     * @return \wf\app\Message
      */
     protected function message()
     {

@@ -249,7 +249,9 @@ function pager($totals, $rows = 10, $tpl = 'simple')
 }
     
 /**
- * 获取记录列表
+ * 分页获取模型记录列表，包括分页实例
+ *
+ * @param \wf\model\Model $m
  * @param array $cdt = []
  * @param int $rows = 10 每页记录数
  * @param string $countField = '*' 统计字段
@@ -262,16 +264,59 @@ function pager($totals, $rows = 10, $tpl = 'simple')
  */
 function modelPager(\wf\model\Model $m, $cdt = [], $rows = 10, $countField = '*')
 {
-    $total = $m->find($cdt)->count($countField);
+    $total = $m->find($cdt)->fetchCount($countField);
     $pager = pager($total, $rows);
     
-    $list = $m->find($cdt)->all($pager->offset, $pager->rows);
+    $list = $m->find($cdt)->fetchAll($pager->offset, $pager->rows);
     
     return [
         'list'  => $list,
         'total' => $total,
         'pages' => $pager->lastPage, // 总页数
         'pager' => $pager,
+    ];
+}
+
+/**
+ * 分页获取模型记录列表，为JS提供数据
+ *
+ * @param \wf\model\Model $m
+ * @param array $cdt = []
+ * @param int $page = 当前页码
+ * @param int $pageSize = 10 每页记录数
+ * @param string $countField = '*' 统计字段
+ * @return array [
+ *   'list'  => $list,
+ *   'total' => $total,
+ *   'pages' => $pages, // 总页数
+ *   'page'  => $page // 当前页数
+ *   'pageSize' => $pageSize // 每页记录数
+ * ]
+ */
+function modelPagerForJs(\wf\model\Model $m, $cdt = [], $page = 1, $pageSize = 10, $countField = '*')
+{
+    // 总记录数
+    $total = $m->find($cdt)->fetchCount($countField);
+
+    // 总页数
+    $pages = ceil($total/$pageSize);
+
+    // 页码检查
+    if ($page > $pages) {
+        $page = $pages;
+    } elseif($page < 1) {
+        $page = 1;
+    }
+
+    $offset = ($page - 1) * $pageSize;
+    $list = $m->find($cdt)->fetchAll($offset, $pageSize);
+
+    return [
+        'list'  => $list,
+        'total' => (int)$total,
+        'pages' => (int)$pages, // 总页数
+        'page'  => (int)$page, // 当前页数
+        'pageSize' => (int)$pageSize, // 每页记录数
     ];
 }
 
@@ -381,7 +426,7 @@ function exceptionHandler($e)
 
 /**
  * 消息对象，支持在多个控制器间（dsp()->dispatch()时）共享消息
- * @return \wf\app\web\Message
+ * @return \wf\app\Message
  */
 function msg() 
 {
@@ -408,3 +453,20 @@ function checkToken()
     return \wf\util\Csrf::checkToken($hash);
 }
 
+/**
+ * 修改二维数组索引，构建新的数组，以数组的某个元素的值作为下标
+ *
+ * @param array $arr
+ * @param string $indexKey 以值作为新数组下标的元素的下标
+ * @param string $prefix = '' 下标前缀
+ */
+function chArrIndex($arr, $indexKey, $prefix = '')
+{
+    $result = [];
+
+    foreach ($arr as $item) {
+        $result[$prefix . $item[$indexKey]] = $item;
+    }
+
+    return $result;
+}
