@@ -133,6 +133,16 @@ class Dispatcher {
         // 初始化router（router保存URL请求参数，不影响$_GET,$_POST的使用）
         if ($uriArg) {
             $uri = $uriArg;
+
+            if($uri[0] != '/') {
+                // http://xxx
+                if(preg_match("/(^http[s]?:\\/\\/.*?)(\\/.*)/i", $uri, $match)) {
+                    $uri = $match[2];
+                } else {
+                    $uri = cfg('url.basePath') . cfg('url.baseUrl') . $uri;
+                }
+            }
+
             $this->request->setRequestUri($uri);
         } else {
             $uri = $this->request->getRequestUri();
@@ -245,9 +255,10 @@ class Dispatcher {
         // 加载URL设置
         $urlCfg = $config->get('url');
         
-        // 网站请求url查询串之前，站点路径之后的部分
+        // 网站请求url查询串之前，站点路径之后的部分，web入口文件只允许是index.php
         $urlCfg['baseUrl'] = $urlCfg['rewrite'] ? '' : 'index.php?';
-        
+
+
         if (PHP_SAPI == 'cli') {
             // 命令行下需要有siteUrl参数
             if (!preg_match("/^(http[s]?:\\/\\/.+?)(\\/.*)/i", $urlCfg['siteUrl'], $siteUrlMatch)) {
