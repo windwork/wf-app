@@ -48,11 +48,13 @@ class Session
         if ($status == PHP_SESSION_ACTIVE) {
             // 清空启用session.auto_start自动开启时初始化的数据
             $_SESSION = [];
-            session_destroy();
+            @session_destroy();
         }
-        
+
+        $sessionName = $cfg['sessionName'];
+
         // session运行时设置
-        ini_set('session.name',             'WF_SID');
+        ini_set('session.name',             $sessionName);
         ini_set('session.use_trans_sid',    $cfg['useTransSid']);
         ini_set('session.cache_limiter',    'nocache'); // http 响应头中的 Cache-Control
         ini_set('session.save_handler',     $cfg['saveHandler']);
@@ -61,43 +63,42 @@ class Session
         ini_set('session.cookie_path',      $cfg['cookiePath']);
         ini_set('session.cookie_domain',    $cfg['cookieDomain']);
         ini_set('session.cookie_lifetime',  $cfg['cookieLifetime']);
-        
-        /*
-        - 关于防 session_id注入：
-        - session_id为空字符或包含字母、数字、-、_之外的字符时将出现警告信息，因此需要处理。
-        */
-                
-        // 提供允许通过URL传递session_id的支持，解决客户端不支持cookie的问题
-        if ($cfg['useTransSid'] && !empty($_GET[session_name()]) && $_GET[session_name()] != session_id()) {
-            $sessionId = $_GET[session_name()];
-            $sessionId = preg_replace("/[^0-9a-z_\\-\\,]/i", '', $sessionId);
-            $sessionId = substr(trim($sessionId), 0, 40);            
-            session_id($sessionId);
-        } else if (isset($_COOKIE[session_name()])) {
-            // $_COOKIE传入session_id合法性检查
-            $sessionId = $_COOKIE[session_name()];
-            if ($sessionId && preg_match("/[^0-9a-z_\\-\\,]/i", $sessionId)) {
-                // 非法字符处理
-                $sessionId = preg_replace("/[^0-9a-z_\\-\\,]/i", '', $sessionId);
-                $sessionId = substr(trim($sessionId), 0, 40);
-                
-                if($sessionId) {
-                    session_id($sessionId);
-                }
+
+        // 支持许通过URL传递session_id，解决客户端不支持cookie的问题（需在配置文件中启用）
+        if ($cfg['useTransSid'] && !empty($_REQUEST[$sessionName])) {
+            if(!static::setSessionId($_REQUEST[$sessionName])) {
+                unset($_GET[$sessionName], $_POST[$sessionName], $_REQUEST[$sessionName]);
             }
-            
-            if(!$sessionId) {
-                // session_id为空字符将出现警告信息
-                // 因此需要删除COOKIE传入的session_id，系统将会自动重新生成session_id
-                unset($_COOKIE[session_name()]);
-            }
+        } else if (!empty($_COOKIE[$sessionName]) && !static::setSessionId($_COOKIE[$sessionName])) {
+            // session_id为空字符将出现警告信息
+            // 因此需要unset COOKIE的session_id，unset后将会自动重新生成session_id
+            unset($_COOKIE[$sessionName]);
         }
         
         session_start();
         
         static::$isSessionStarted = true;
     }
-    
+
+    /**
+     * 设置session_id，每次请求都设置，以更新session过期时间
+     * @param string $sessionId
+     * @return bool|string
+     */
+    private static function setSessionId($sessionId){
+        $sessionId = trim($sessionId);
+
+        // 非法字符处理
+        if (!$sessionId || preg_match("/[^0-9a-z_\\-\\,]/i", $sessionId)) {
+            return false;
+        }
+
+        $sessionId = substr($sessionId, 0, 40);
+        session_id($sessionId);
+
+        return $sessionId;
+    }
+
     /**
      * 清除session，用户退出后调用
      */
