@@ -19,30 +19,26 @@ namespace wf\app;
  */
 class Message 
 {
-    /**
-     * 是否是操作成功
-     * @var bool
-     */
-    private $success = true;
-    
-    /**
-     * 消息状态码
-     * @var code
-     */
-    private $code = 0;
-    
-    /**
-     * 消息内容
-     * @var string
-     */
-    private $message = '';
+    private $data = [
+        /**
+         * 是否是操作成功
+         * @var bool
+         */
+        'success' => true,
 
-    /**
-     * 数据内容消息
-     * @var array
-     */
-    private $data = [];
-    
+        /**
+         * 消息状态码
+         * @var code
+         */
+        'code' => 0,
+
+        /**
+         * 消息内容
+         * @var string
+         */
+        'message' => '',
+    ];
+
     /**
      * 默认错误码
      * @var int
@@ -55,7 +51,7 @@ class Message
      */
     public function getCode() 
     {
-        return $this->code;
+        return $this->data['code'];
     }
     
     /**
@@ -64,17 +60,7 @@ class Message
      */
     public function getMessage() 
     {
-        return $this->message;
-    }
-    
-    /**
-     * 获取所有提示信息
-     * 
-     * @return array
-     */
-    public function getData()
-    {
-        return $this->data;
+        return $this->data['message'];
     }
     
     /**
@@ -87,16 +73,16 @@ class Message
     public function setError($error, $code = Message::DEFAULT_ERROR_CODE)
     {
         if ($error instanceof \wf\model\Error) {
-            $this->code    = $error->getCode();
-            $this->message = $error->getMessage();     
+            $this->data['code']    = $error->getCode();
+            $this->data['message'] = $error->getMessage();
         } elseif (is_scalar($error)) {
-            $this->code    = $code;
-            $this->message = $error;          
+            $this->data['code']    = $code;
+            $this->data['message'] = $error;
         } else {
             throw new \InvalidArgumentException('错误的消息类型');
         }
 
-        $this->success = false;
+        $this->data['success'] = false;
 	
         return $this;
     }
@@ -109,9 +95,9 @@ class Message
      */
     public function setSuccess($msg, $code = 0)
     {
-        $this->success = true;
-        $this->code    = $code;
-        $this->message = $msg;
+        $this->data['success'] = true;
+        $this->data['code']    = $code;
+        $this->data['message'] = $msg;
         
         return $this;
     }
@@ -123,7 +109,7 @@ class Message
      */
     public function isSuccess()
     {
-        return $this->success;
+        return $this->data['success'];
     }
     
     /**
@@ -132,22 +118,24 @@ class Message
      */
     public function reset() 
     {
-        $this->success = true;
-        $this->code    = 0;
-        $this->message = '';
-        $this->data    = [];
+        $this->data = [
+            'success' => true,
+            'code'    => 0,
+            'message' => '',
+        ];
         
         return $this;
     }
     
     /**
-     * 设置消息数据
+     * 天假自定义消息数据
+     * @param string $key
      * @param mixed $value
      * @return \wf\app\Message
      */
-    public function setData($value)
+    public function addData($key, $value)
     {
-        $this->data = $value;
+        $this->data[$key] = $value;
         
         return $this;
     }
@@ -158,16 +146,6 @@ class Message
      */
     public function toArray()
     {
-        $arr = [
-            'success' => $this->success,
-            'code'    => $this->code,
-            'message' => $this->message,
-        ];
-        
-        if ($this->data) {
-            $arr['data'] = $this->data;
-        }
-        
-        return $arr;
+        return $this->data;
     }
 }
