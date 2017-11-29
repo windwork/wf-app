@@ -18,6 +18,7 @@ namespace wf\app\web;
  */
 class UnauthorizedException extends \Exception {
     public function __construct ($message = null, $code = 401, $previous = null) {
+        $message = $message ? $message : "请您先登录！";
         parent::__construct ($message, $code, $previous);
     }
 }

@@ -20,7 +20,7 @@ class NotFoundException extends \Exception
 {
     public function __construct ($message = null, $code = 404, $previous = null) 
     {
-        $message = $message ? $message : "很不幸，你探索了一个位置领域！";
+        $message = $message ? $message : "很不幸，你探索了一个未知的领域！";
         parent::__construct ($message, $code, $previous);
     }
 }

@@ -18,6 +18,7 @@ namespace wf\app\web;
  */
 class ForbiddenException extends \Exception {
     public function __construct ($message = null, $code = 403, $previous = null) {
+        $message = $message ? $message : "此路不通，请绕行！";
         parent::__construct ($message, $code, $previous);
     }
 }
