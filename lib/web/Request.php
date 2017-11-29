@@ -542,7 +542,7 @@ class Request
      * 返回当前执行脚本的绝对路径
      * 
      * <pre>Example:
-     * 请求: http://www.windwork.org/demo/index.php?app=xx
+     * 请求: http://www.windwork.org/demo/index.php?mod=xx&ctl=xx&act=xx
      * 返回: /demo/index.php
      * </pre>
      * 
@@ -641,31 +641,6 @@ class Request
         }
         
         return $default;
-    }
-
-    /**
-     * 获取基础URL
-     * 
-     * 这里是去除了脚本文件以及访问参数信息的URL地址信息:
-     * 
-     * <pre>Example:
-     * 请求: http://www.windwork.org/demo/index.php?app=xx 
-     * 1.如果: $absolute = false：
-     * 返回： demo    
-     * 2.如果: $absolute = true:
-     * 返回： http://www.windwork.org/demo
-     * </pre>
-     * @param bool $absolute 是否返回主机信息
-     * @return string
-     * @throws Exception 当返回信息失败的时候抛出异常
-     */
-    public function getBaseUrl($absolute = false) 
-    {
-        if ($this->baseUrl === null) {
-            $this->baseUrl = rtrim(dirname($this->getScriptUrl()), '\\/.');
-        }
-        
-        return $absolute ? $this->getHostInfo() . $this->baseUrl : $this->baseUrl;
     }
 
     /**
