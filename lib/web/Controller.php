@@ -130,22 +130,18 @@ abstract class Controller
      * 初始化视图对象实例
      */
     private function initView() {
+        $viewCfg = cfg('srv.template');
+        $viewCfg['compileId'] = app()->getI18n()->getLocale();
+
         // 默认模板文件
-        if (cfg('srv.template.defaultTpl')) {
-            $defaultTpl = str_replace(['{mod}', '{ctl}', '{act}'], [$this->mod, $this->ctl, $this->act], cfg('srv.template.defaultTpl'));
+        if (empty($viewCfg['defaultTpl'])) {
+            $viewCfg['defaultTpl'] = str_replace(['{mod}', '{ctl}', '{act}'], [$this->mod, $this->ctl, $this->act], $viewCfg['defaultTpl']);
         } else {
-            $defaultTpl = trim("{$this->mod}/{$this->ctl}.{$this->act}.html", "/ ");
+            $viewCfg['defaultTpl'] = trim("{$this->mod}/{$this->ctl}.{$this->act}.html", "/ ");
         }
 
-        // 模板配置设置        
-        $this->app->getConfig()
-        // 模板编译ID，不同用户本地语言使用不同模板
-        ->set('srv.template.compileId',  app()->getI18n()->getLocale())
-        // 默认模板文件
-        ->set('srv.template.defaultTpl', $defaultTpl);
-        
         // 更新服务加载器模板组件参数
-        setSrv('template', cfg('srv.template.class'), [cfg('srv.template')], false);
+        setSrv('template', $viewCfg['class'], [$viewCfg], false);
         
         // 创建模板引擎实例
         $this->view = srv('template');
@@ -227,26 +223,34 @@ abstract class Controller
      */
     protected function showMessage($htmlTpl = '')
     {
-        // json视图
-        if ($this->request->isAjaxRequest()) {
-            print \wf\app\web\Output::jsonCallable($this->message()->toArray());
+        $message = $this->message()->toArray();
+
+        // 默认json视图，通过_v请求参数指定返回HTML视图
+        if (in('_v') != 'html') {
+            print \wf\app\web\Output::jsonCallable($message, JSON_UNESCAPED_UNICODE);
             return;
         }
         
         // html视图
         $view = $this->getView();
-        $view->assign('message', $this->message());
+        $view->assign('message', $message);
         
         if ($htmlTpl) {
             $view->render($htmlTpl);
             exit;
         }
-        
+
         $code = $this->message()->getCode();
+
+        // 根据状态码选择视图
         switch ($code) {
             case 401:
-                $forward = $this->request->getRequestUrl();
-                $uri = url('user.account.login/forward:' . paramEncode($forward));
+                $forward = in('forward');
+                if (!$forward) {
+                    $forward = $this->request->getRequestUrl();
+                }
+
+                $uri = 'user.account.login/forward:' . paramEncode($forward);
                 $this->dispatch($uri);
                 exit;
             case 403:
