@@ -83,6 +83,7 @@ function in($key = null)
  * </pre>
  * 
  * @param string $name 配置参数下标，访问多层级数组用.隔开
+ * @return mixed
  */
 function cfg($name = null)
 {
@@ -192,11 +193,12 @@ function wfMailer()
  * @param string|ing $path 图片路径或图片附件id
  * @param int $width = 100 为0时按高比例缩放
  * @param int $height = 0 为0时按宽比例缩放
+ * @param bool $fullUrl = false 是否强制获取完整路径图片
  * @return string
  */
-function thumb($path, $width = 100, $height = 0)
+function thumb($path, $width = 100, $height = 0, $fullUrl = false)
 {
-    return wfStorage()->getThumbUrl($path, $width, $height);
+    return wfStorage()->getThumbUrl($path, $width, $height, $fullUrl);
 }
 
 /**
@@ -282,8 +284,8 @@ function modelPager(\wf\model\Model $m, $cdt = [], $rows = 10, $countField = '*'
  *
  * @param \wf\model\Model $m
  * @param array $cdt = []
- * @param int $page = 当前页码
  * @param int $pageSize = 10 每页记录数
+ * @param int $page = 当前页码
  * @param string $countField = '*' 统计字段
  * @return array [
  *   'list'  => $list,
@@ -293,7 +295,7 @@ function modelPager(\wf\model\Model $m, $cdt = [], $rows = 10, $countField = '*'
  *   'pageSize' => $pageSize // 每页记录数
  * ]
  */
-function modelPagerForJs(\wf\model\Model $m, $cdt = [], $page = 1, $pageSize = 10, $countField = '*')
+function modelPagerForJs(\wf\model\Model $m, $cdt = [], $pageSize = 10, $page = 1, $countField = '*')
 {
     // 总记录数
     $total = $m->find($cdt)->fetchCount($countField);
@@ -400,9 +402,10 @@ function exceptionHandler($e)
     $file = trim($file, '/');
     $trace = str_replace($trimPath, '', $e->getTraceAsString());
     $trace = "<pre class=\"error-trace\">{$trace}</pre>\n";
-    
-    if (in_array($code, array(401, 403, 404))) {                
-        dsp()->dispatch("common.message.show/{$code}");
+
+    if (in_array($code, [401, 403, 404])) {
+        app()->getMessage()->setError($message, $code);
+        dsp()->dispatch("common.message.show/forward:" . paramEncode(dsp()->getRequest()->getRequestUrl()));
         return ;
     }
     
@@ -436,7 +439,7 @@ function msg()
 /**
  * 数据表数据查询
  * @param string $table
- * return \wf\db\Finder
+ * @return \wf\db\Finder
  */
 function table($table)
 {
@@ -449,7 +452,7 @@ function table($table)
  */
 function checkToken() 
 {
-    $hash = in('hash');
+    $hash = in('token');
     return \wf\util\Csrf::checkToken($hash);
 }
 
@@ -459,6 +462,7 @@ function checkToken()
  * @param array $arr
  * @param string $indexKey 以值作为新数组下标的元素的下标
  * @param string $prefix = '' 下标前缀
+ * @return array
  */
 function chArrIndex($arr, $indexKey, $prefix = '')
 {
@@ -469,4 +473,32 @@ function chArrIndex($arr, $indexKey, $prefix = '')
     }
 
     return $result;
+}
+
+/**
+ * 获取分页查询下标
+ *
+ * @param int $total
+ * @param int $page
+ * @param int $rowCount
+ * @return int
+ */
+function getPageOffset($total, $page, $rowCount)
+{
+    if($total == 0) {
+        return 0;
+    }
+
+    if($page <= 0) {
+        $page = 1;
+    } else {
+        $maxPage = ceil($total/$rowCount);
+        if($page > $maxPage) {
+            $page = $maxPage;
+        }
+    }
+
+    $offset = ($page - 1) * $rowCount;
+
+    return $offset;
 }
