@@ -1,9 +1,9 @@
 <?php
 /**
  * Windwork
- * 
+ *
  * 一个用于快速开发高并发Web应用的轻量级PHP框架
- * 
+ *
  * @copyright Copyright (c) 2008-2017 Windwork Team. (http://www.windwork.org)
  * @license   http://opensource.org/licenses/MIT
  */
@@ -11,14 +11,14 @@
 /**
  * Windwork开发框架帮助函数，
  * 为了简化Windwork框架组件对象访问，提升开发效率和代码可读性。
- * 
+ *
  * @author      cm <cmpan@qq.com>
  * @since       0.1.0
  */
 
 /**
  * 获取应用实例
- * 
+ *
  * @return \wf\app\web\Application
  */
 function app()
@@ -50,7 +50,7 @@ function setSrv($name, $definition, array $params = [], $share = true)
 
 /**
  * 调度器实例（前端控制器）
- * 
+ *
  * @return \wf\app\web\Dispatcher
  */
 function dsp()
@@ -70,25 +70,25 @@ function in($key = null)
 
 /**
  * 读取配置变量
- * 
+ *
  * <pre>
  * // 访问 $this->configs['url']
- * $conf->get('url'); 
- * 
+ * $conf->get('url');
+ *
  * // 访问 $this->configs['url']['rewrite']
- * $conf->get('url.rewrite'); 
- * 
+ * $conf->get('url.rewrite');
+ *
  * // 访问 $this->configs['url']['alias']['login']
- * $conf->get('url.alias.login'); 
+ * $conf->get('url.alias.login');
  * </pre>
- * 
+ *
  * @param string $name 配置参数下标，访问多层级数组用.隔开
  * @return mixed
  */
 function cfg($name = null)
 {
     $cfgObj = app()->getConfig();
-    
+
     if ($name === null) {
         return $cfgObj->getAll();
     }
@@ -149,7 +149,7 @@ function logging($level, $message)
 
 /**
  * 获取数据库操作组件实例
- * 
+ *
  * @param string $id = 'default'
  * @return \wf\db\DBInterface
  */
@@ -160,7 +160,7 @@ function wfDb($id = 'default')
 
 /**
  * 获取存贮组件实例
- * 
+ *
  * @return \wf\storage\StorageInterface
  */
 function wfStorage()
@@ -170,7 +170,7 @@ function wfStorage()
 
 /**
  * 图片处理组件
- * 
+ *
  * @return \wf\image\ImageInterface
  */
 function wfImage()
@@ -180,7 +180,7 @@ function wfImage()
 
 /**
  * 邮件发送组件实例
- * 
+ *
  * @return \wf\mailer\MailerInterface
  */
 function wfMailer()
@@ -225,7 +225,7 @@ function storagePath($url)
 
 /**
  * 生成URL
- * 
+ *
  * 通过路由实例生成符合路由解析规则的URL
  *
  * @param string $uri
@@ -239,17 +239,17 @@ function url($uri, $fullUrl = false)
 
 /**
  * 创建记录查询分页导航对象
- * 
+ *
  * @param int $totals 总记录数
  * @param int $rows = 10  每页显示记录数
- * @param string $tpl = 'simple' 分页 导航模板，mobile）手机分页, simple）简单分页, complex）复杂分页 
+ * @param string $tpl = 'simple' 分页 导航模板，mobile）手机分页, simple）简单分页, complex）复杂分页
  */
 function pager($totals, $rows = 10, $tpl = 'simple')
 {
     $pager = new \wf\pager\Pager($totals, $rows, '', ['argSeparator' => '/', 'valSeparator' => ':', 'tpl' => $tpl]);
     return $pager;
 }
-    
+
 /**
  * 分页获取模型记录列表，包括分页实例
  *
@@ -268,9 +268,9 @@ function modelPager(\wf\model\Model $m, $cdt = [], $rows = 10, $countField = '*'
 {
     $total = $m->find($cdt)->fetchCount($countField);
     $pager = pager($total, $rows);
-    
+
     $list = $m->find($cdt)->fetchAll($pager->offset, $pager->rows);
-    
+
     return [
         'list'  => $list,
         'total' => $total,
@@ -381,7 +381,7 @@ function paramEncode($arg)
     }
     return $arg;
 }
-    
+
 /**
  * 默认异常处理
  *
@@ -392,7 +392,7 @@ function exceptionHandler($e)
     $code = $e->getCode();
     $message = $e->getMessage();
     $message = "<b style='color:#F00; font-size:14px; line-height:18px;'>{$message}</b>";
-    
+
     $trimPath = \wf\app\Loader::getClassPath();
     $trimPath[] = __WF_BASE_DIR;
 
@@ -408,7 +408,7 @@ function exceptionHandler($e)
         dsp()->dispatch("common.message.show/forward:" . paramEncode(dsp()->getRequest()->getRequestUrl()));
         return ;
     }
-    
+
     if (WF_DEBUG) {
         $message = "<div style=\"color:#666;\">"
                  . "  <b>Exception:</b> ".get_class($e) . "\n<br />"
@@ -418,12 +418,12 @@ function exceptionHandler($e)
                  . "  {$trace}\n"
                  . "</div>";
     }
-    
+
     header('Content-Type: text/html; Charset=utf-8');
     print "<div style=\"border: 1px solid #F90; color:#999; padding: 8px 12px; margin:20px 12px; background:#FFFEEE;\">{$message}</div>\n";
-    
+
     logging('exception', $e->__toString()."\n");
-    
+
     exit;
 }
 
@@ -431,7 +431,7 @@ function exceptionHandler($e)
  * 消息对象，支持在多个控制器间（dsp()->dispatch()时）共享消息
  * @return \wf\app\Message
  */
-function msg() 
+function msg()
 {
     return app()->getMessage();
 }
@@ -450,7 +450,7 @@ function table($table)
  * 检查页面请求令牌
  * @return bool
  */
-function checkToken() 
+function checkToken()
 {
     $hash = in('token');
     return \wf\util\Csrf::checkToken($hash);
@@ -501,4 +501,30 @@ function getPageOffset($total, $page, $rowCount)
     $offset = ($page - 1) * $rowCount;
 
     return $offset;
+}
+
+/**
+ * 清除指定代码
+ * @param string $source
+ * @param array $clearTokenList = [] 附加清除的token编号
+ * @return string
+ */
+function clearSourceToken($source, $clearTokenList = [])
+{
+    $tokens = token_get_all($source);
+    $rText = '';
+
+    foreach ($tokens as $token) {
+        if (is_string($token)) {
+            $rText .= $token;
+            continue;
+        }
+
+        list($id, $text) = $token;
+        if(!in_array($id, $clearTokenList)) {
+            $rText .= $text;
+        }
+    }
+
+    return $rText;
 }

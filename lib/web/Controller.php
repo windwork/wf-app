@@ -1,17 +1,17 @@
 <?php
 /**
  * Windwork
- * 
+ *
  * 一个用于快速开发高并发Web应用的轻量级PHP框架
- * 
+ *
  * @copyright Copyright (c) 2008-2017 Windwork Team. (http://www.windwork.org)
  * @license   http://opensource.org/licenses/MIT
  */
 namespace wf\app\web;
 
 /**
- * 控制器基础类 
- * 
+ * 控制器基础类
+ *
  * @package     wf.app.web
  * @author      cm <cmpan@qq.com>
  * @link        http://docs.windwork.org/manual/wf.app.web.controller.html
@@ -24,19 +24,19 @@ abstract class Controller
      * @var \wf\app\web\Dispatcher
      */
     protected $dispatcher   = null;
-    
+
     /**
-     * 
+     *
      * @var \wf\app\web\Application
      */
     protected $app;
-    
+
     /**
      * 当前访问的模块
      * @var string
      */
     protected $mod   = null;
-    
+
     /**
      * 当前访问的控制器
      * @var string
@@ -48,13 +48,13 @@ abstract class Controller
      * @var string
      */
     protected $act   = null;
-    
+
     /**
      * 是否已初始化
      * @var bool
      */
     protected $inited = false;
-    
+
     /**
      * @var \wf\app\web\Request
      */
@@ -64,41 +64,41 @@ abstract class Controller
      * @var \wf\app\web\Response
      */
     protected $response = null;
-    
+
     /**
-     * 
+     *
      * @var \wf\template\EngineInterface
      */
     private $view;
-    
+
     /**
      * 控制器构造函数
      * 设置app、request、response、mod、ctl、act、view属性
      */
     public function __construct()
-    {        
+    {
         // 绑定应用实例
         $this->app = app();
-        
+
         $dispatcher = $this->app->getDispatcher();
         $router = $dispatcher->getRouter();
-        
+
         // 模块/控制器/操作
         $this->mod = $router->mod;
         $this->ctl = $router->ctl;
         $this->act = $router->act;
-        
+
         // 控制器中的对象
         $this->dispatcher = $dispatcher;
         $this->request    = $dispatcher->getRequest();
         $this->response   = $dispatcher->getResponse();
-        
+
         $this->inited = true;
-    }    
-    
+    }
+
     /**
      * 执行控制器方法
-     * 
+     *
      * @param array $params
      * @throws \wf\app\web\Exception
      */
@@ -107,13 +107,13 @@ abstract class Controller
         if (!$this->inited) {
             throw new \wf\app\web\Exception('请在'.get_called_class().'::__construct()调用parent::__construct()');
         }
-        
+
         $action = $this->act . 'Action';
-        
+
         if(!method_exists($this, $action)) {
             throw new \wf\app\web\NotFoundException;
         }
-        
+
         // 执行方法
         //call_user_func_array(array($this, $action), $params);
         $method = new \ReflectionMethod($this, $action);
@@ -122,10 +122,10 @@ abstract class Controller
             // 否则不能在上一级异常处理中捕获，而直接到顶级异常处理中
             throw new \wf\app\web\NotFoundException;
         }
-        
+
         $method->invokeArgs($this, $params); // 在这里加断点，下一步将进入当前请求的控制器业务逻辑中
     }
-    
+
     /**
      * 初始化视图对象实例
      */
@@ -142,7 +142,7 @@ abstract class Controller
 
         // 更新服务加载器模板组件参数
         setSrv('template', $viewCfg['class'], [$viewCfg], false);
-        
+
         // 创建模板引擎实例
         $this->view = srv('template');
 
@@ -151,17 +151,17 @@ abstract class Controller
         ->assign('mod', $this->mod)
         ->assign('ctl', $this->ctl)
         ->assign('act', $this->act)
-        
+
         // URL相关参数
         ->assign('themePath',  cfg('url.staticSiteUrl') . 'theme/' . cfg('theme') . '/')
         ->assign('staticPath', cfg('url.staticSiteUrl') . 'static/')
         ->assign('basePath',   cfg('url.basePath'))
         ->assign('baseUrl',    cfg('url.baseUrl'))
         ->assign('siteUrl',    cfg('url.siteUrl'));
-        
-        return $this->view;        
+
+        return $this->view;
     }
-        
+
     /**
      * 初始化视图对象
      * @return \wf\template\EngineInterface
@@ -171,18 +171,18 @@ abstract class Controller
         if (!$this->view) {
             $this->initView();
         }
-        
+
         return $this->view;
     }
-    
+
     /**
      * 获取用户输入数据
-     * 
+     *
      * @param string $name = null 为空则返回所有type对应的输入数据
      * @param string $type = '' 可选输入类型：post|request|get|attribute|cookie|空，为空则按post|request|get|attribute|cookie的顺序查找
      */
     protected function getInput($name = null, $type = '')
-    {        
+    {
         switch (strtolower($type)) {
             case 'post':
                 $ret = $this->request->getPost($name);
@@ -202,21 +202,21 @@ abstract class Controller
                 $ret = $this->request->getRequest($name);
                 break;
         }
-        
+
         return $ret;
     }
-    
+
     /**
      * 业务控制层消息，只在控制器中设置值，可在视图中显示。
      * 可跨在一个请求中跨action传递
-     * 
+     *
      * @return \wf\app\Message
      */
     protected function message()
     {
         return $this->app->getMessage();
     }
-    
+
     /**
      * 显示应用消息对象的内容
      * @param string $htmlTpl = '' HTML视图的模板路径
@@ -230,11 +230,11 @@ abstract class Controller
             print \wf\app\web\Output::jsonCallable($message, JSON_UNESCAPED_UNICODE);
             return;
         }
-        
+
         // html视图
         $view = $this->getView();
         $view->assign('message', $message);
-        
+
         if ($htmlTpl) {
             $view->render($htmlTpl);
             exit;
@@ -263,13 +263,13 @@ abstract class Controller
                 $tpl = 'common/message.html';
                 break;
         }
-        
+
         $view->render($tpl);
-        
+
         // 显示内容后即结束执行
         exit;
     }
-    
+
     /**
      * 应用程序内转发
      * @param string $uri
@@ -278,7 +278,7 @@ abstract class Controller
     {
         return $this->dispatcher->dispatch($uri);
     }
-    
+
     /**
      * 网络跳转
      * @param string $uri
@@ -287,16 +287,16 @@ abstract class Controller
     {
         $this->response->sendRedirect($uri);
     }
-    
+
     /**
      * 是否是提交数据（因js跨域情况下前端js可能把post换成get，因此不用isPost）
      * @return boolean
      */
     protected function isSubmit()
     {
-        return (bool)$this->getInput('submit');
+        return (bool)$this->getInput('_submit');
     }
-    
+
     /**
      * 当前请求是否是AJAX请求
      * @return boolean
